@@ -22,7 +22,7 @@ In order to use the application, any avermedia frame garbber hardware that suppo
 (https://user-images.githubusercontent.com/42136540/85235939-e8bf6800-b421-11ea-9213-f84a225c9224.gif)
 
 **Screenshot**
-![Screenshot-1](https://user-images.githubusercontent.com/42136540/86531059-c4a26300-bec6-11ea-92ee-a150c013116f.png)
+![Screenshot-1](https://user-images.githubusercontent.com/42136540/86531143-6cb82c00-bec7-11ea-8131-eb3a362bb955.png)
 ![Screenshot-2](https://user-images.githubusercontent.com/42136540/86531073-e1d73180-bec6-11ea-8b2e-a0ca86a091db.png)
 
 
