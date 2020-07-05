@@ -10,13 +10,23 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Yuy2;
 
 namespace AverMediaTestApp
 {
+#if _X64_MACHINE
+    using LONGPTR = System.Int64;
+#else
+    using LONGPTR = System.Int32;
+#endif
+
     public partial class MainForm : Form
-    {        
+    {
+        ImageStatsForm imageStatsForm;
         AvermediaTools avermediaTools;
         DeviceSettingsForm deviceSettingsForm;
+
+        private readonly object objSync = new object();
         
         public MainForm()
         {
@@ -24,7 +34,8 @@ namespace AverMediaTestApp
         }
 
         private void Form1_Load(object sender, EventArgs e)
-        {   
+        {
+            imageStatsForm = null;
             InitMainWindow();
         }
 
@@ -55,6 +66,16 @@ namespace AverMediaTestApp
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            lock (objSync)
+            {
+                if (imageStatsForm != null)
+                {
+                    imageStatsForm.Close();
+                    imageStatsForm.Dispose();
+                    imageStatsForm = null;
+                }
+            }
+
             avermediaTools.Close();
             KeyHookTool.UnHook();
         }
@@ -71,6 +92,7 @@ namespace AverMediaTestApp
             this.btnStartStop.Enabled = false;
             this.btnCapture.Enabled = false;
             this.btnDeviceSettings.Enabled = false;
+            this.btnShowImageStats.Enabled = false;
             this.tabControlFilter.Enabled = false;
 
 
@@ -117,14 +139,44 @@ namespace AverMediaTestApp
 
             return 0;
         }
-               
+
+        long iCount = 0;
+        DateTime dtimeLastCalback = DateTime.Now;
+        public int VideoCapture_CallBack(VIDEO_SAMPLE_INFO VideoInfo, IntPtr pbData, int lLength, long tRefTime, LONGPTR lUserData)
+        {
+            if ((DateTime.Now - dtimeLastCalback).TotalMilliseconds >= avermediaTools.videoCaptureInfoForCallBack.dwDuration)
+            {
+                dtimeLastCalback = DateTime.Now;
+                lock (objSync)
+                {
+                    if (imageStatsForm != null && !imageStatsForm.Disposing)
+                    {
+                        byte[] bData = new byte[lLength - 1];
+                        Marshal.Copy(pbData, bData, 0, lLength - 1);
+                        try
+                        {
+                            imageStatsForm.PreviewImage(bData, VideoInfo);
+                        }
+                        catch(Exception ex) { }
+                    }
+                }
+
+                iCount++;
+                ulong length = VideoInfo.dwWidth * VideoInfo.dwHeight;
+                Console.WriteLine(DateTime.Now.ToString("HH:mm:ss.fff") + " -> " + iCount + "   /   " + lLength + "   /   " + length);
+            }
+            return 1;
+        }
+
         public void stopStreaming()
         {
+            avermediaTools.videoCaptureCallBack = null;
             avermediaTools.stopStreaming();
         }
 
         public void startStreaming()
         {
+            avermediaTools.videoCaptureCallBack = this.VideoCapture_CallBack;
             avermediaTools.startStreaming("Your Name", true);
         }
 
@@ -133,10 +185,23 @@ namespace AverMediaTestApp
             if (avermediaTools.IsStartStreaming)
             {
                 this.btnStartStop.BackgroundImage = AverMediaTestApp.Properties.Resources.start_video;
+                lock (objSync)
+                {
+                    if (imageStatsForm != null)
+                    {
+                        imageStatsForm.Close();
+                        imageStatsForm.Dispose();
+                        imageStatsForm = null;
+                    }
+                }
+
                 stopStreaming();
                 SetDefaultColorAdjustments();
                 this.btnCapture.Enabled = false;
+                this.btnShowImageStats.Enabled = false;
                 this.tabControlFilter.Enabled = false;
+
+                
                 //avermediaTools.UpdateDemoState(DEMOSTATE.DEMO_STATE_STOP, true);
             }
             else
@@ -145,7 +210,10 @@ namespace AverMediaTestApp
                 startStreaming();
                 InitColorAdjustments();
                 if (avermediaTools.HasCaptureSupported())
+                {
                     this.btnCapture.Enabled = true;
+                    this.btnShowImageStats.Enabled = true;
+                }
                 this.tabControlFilter.Enabled = true;
                 //avermediaTools.UpdateDemoState(DEMOSTATE.DEMO_STATE_PREVIEW, true);
             }
@@ -398,9 +466,17 @@ namespace AverMediaTestApp
                 avermediaTools.SaveSettings();
         }
 
-        private void btnTest_Click(object sender, EventArgs e)
+        private void btnShowImageStats_Click(object sender, EventArgs e)
         {
-            avermediaTools.ChangeCrosshairPosition(10,10);
+            if (imageStatsForm == null || imageStatsForm.IsDisposed)
+            {
+                imageStatsForm = new ImageStatsForm();
+                imageStatsForm.Show();
+            }
+            else
+            {
+                imageStatsForm.Focus();
+            }
         }
 
         private void btnCrosshairKeyTrackingLock_Click(object sender, EventArgs e)

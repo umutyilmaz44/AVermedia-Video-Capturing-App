@@ -10,6 +10,12 @@ using System.Windows.Forms;
 
 namespace AverMediaLib
 {
+#if _X64_MACHINE
+    using LONGPTR = System.Int64;
+#else
+    using LONGPTR = System.Int32;
+#endif
+
     public class AvermediaTools
     {
         private int FALSE = 0;
@@ -86,6 +92,9 @@ namespace AverMediaLib
 
         public IDeviceSettings deviceSetting;
 
+        public VIDEO_CAPTURE_INFO videoCaptureInfoForCallBack;
+        public VIDEOCAPTURECALLBACK videoCaptureCallBack;
+
         public AvermediaTools(PictureBox picturebox)
         {
             this.picturebox = picturebox;
@@ -98,6 +107,17 @@ namespace AverMediaLib
             AVerCapAPI.AVerSetMaintainAspectRatioEnabled(m_hCaptureDevice, m_iIsMaintainEnable);
 
             SetSettingFilePath();
+
+            //this.videoCaptureCallBack = VideoCapture_CallBack;
+
+            //this.videoCaptureInfo = new VIDEO_CAPTURE_INFO();
+            //videoCaptureInfo.dwCaptureType = (uint)CT_SEQUENCE.CT_SEQUENCE_FRAME;
+            //videoCaptureInfo.dwSaveType = (uint)SAVETYPE.ST_CALLBACK;
+            //videoCaptureInfo.dwDurationMode = (uint)DURATIONMODE.DURATION_TIME;
+            //videoCaptureInfo.dwDuration = (uint)1500;
+            //videoCaptureInfo.lpCallback = videoCaptureCallBack;
+            //videoCaptureInfo.lCallbackUserData = 0;
+            //videoCaptureInfo.bOverlayMix = 0;
         }
 
         private void pboxImage_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
@@ -269,8 +289,8 @@ namespace AverMediaLib
                 return false;
             }
 
-            m_CaptureImageInfo.dwDurationMode = (uint)DURATIONMODE.DURATION_COUNT;
-            m_CaptureImageInfo.dwDuration = 1;
+            m_CaptureImageInfo.dwDurationMode = (uint)DURATIONMODE.DURATION_TIME;
+            m_CaptureImageInfo.dwDuration = 500;
             m_CaptureImageInfo.dwVersion = 1;
             int iRetVal = AVerCapAPI.AVerCaptureImageStart(m_hCaptureDevice, ref m_CaptureImageInfo);
             if (iRetVal != 0)
@@ -287,6 +307,18 @@ namespace AverMediaLib
             AVerCapAPI.AVerCaptureImageStop(m_hCaptureDevice, 0);
 
             return true;
+        }
+
+        public byte[] GetSnapshotImage()
+        {
+            byte[] lpBmpData = null;
+            int plBufferSize = 0;
+            uint timeout = 2000;
+            bool overlayMix = false;
+
+            int hr = AVerCapAPI.AVerCaptureSingleImageToBuffer(m_hCaptureDevice, ref lpBmpData, ref plBufferSize, overlayMix, timeout);
+
+            return lpBmpData;
         }
 
         public string GetSavedDeviceName()
@@ -364,10 +396,21 @@ namespace AverMediaLib
             m_hCaptureDevice = (IntPtr)0;
         }
         
+        public int VideoCapture_CallBack(VIDEO_SAMPLE_INFO VideoInfo, IntPtr pbData, int lLength, long tRefTime, LONGPTR lUserData)
+        {
+            byte[] bData = new byte[lLength - 1];
+            Marshal.Copy(pbData, bData, 0, lLength - 1);
+
+            //int hr = AVerCapAPI.AVerCaptureVideoSequenceStop(m_hCaptureDevice);
+
+            return 1;
+        }
+
         public void stopStreaming()
         {
             if (m_bIsStartStreaming)
             {
+                int hr = AVerCapAPI.AVerCaptureVideoSequenceStop(m_hCaptureDevice);
                 AVerCapAPI.AVerStopStreaming(m_hCaptureDevice);
                 m_bIsStartStreaming = false;
             }
@@ -383,6 +426,16 @@ namespace AverMediaLib
             GCHandle gchThis = GCHandle.Alloc(this);
             AVerCapAPI.AVerSetEventCallback(m_hCaptureDevice, m_NotifyEventCallback, 0, GCHandle.ToIntPtr(gchThis));
 
+            this.videoCaptureInfoForCallBack = new VIDEO_CAPTURE_INFO();
+            videoCaptureInfoForCallBack.dwCaptureType = (uint)CT_SEQUENCE.CT_SEQUENCE_FRAME;
+            videoCaptureInfoForCallBack.dwSaveType = (uint)SAVETYPE.ST_CALLBACK;
+            //videoCaptureInfoForCallBack.dwSaveType = (uint)SAVETYPE.ST_BMP;            
+            videoCaptureInfoForCallBack.dwDurationMode = (uint)DURATIONMODE.DURATION_TIME;
+            videoCaptureInfoForCallBack.dwDuration = (uint)1000;
+            videoCaptureInfoForCallBack.lpCallback = videoCaptureCallBack;
+            videoCaptureInfoForCallBack.lCallbackUserData = 0;
+            videoCaptureInfoForCallBack.bOverlayMix = 0;
+
             //get device setting            
             AVerCapAPI.AVerSetVideoRotateMode(m_hCaptureDevice, (uint)this.videoRotate);
 
@@ -391,10 +444,14 @@ namespace AverMediaLib
                 MessageBox.Show("Can't start streaming", "AVer Capture SDK");
                 return;
             }
+
+            int hr = AVerCapAPI.AVerCaptureVideoSequenceStart(m_hCaptureDevice, videoCaptureInfoForCallBack);
+
             m_iIsMaintainEnable = 1;
             AVerCapAPI.AVerSetMaintainAspectRatioEnabled(m_hCaptureDevice, m_iIsMaintainEnable);
+            AVerCapAPI.AVerRepaintVideo(m_hCaptureDevice);
 
-            if(!string.IsNullOrEmpty(userName))
+            if (!string.IsNullOrEmpty(userName))
                 this.UserName = userName;
 
             SetVideoResolutionInfo();

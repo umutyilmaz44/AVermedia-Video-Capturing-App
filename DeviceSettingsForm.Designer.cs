@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeviceSettingsForm));
             this.txt_InputVideoInfo = new System.Windows.Forms.RichTextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.cmbVideoSource = new System.Windows.Forms.ComboBox();
@@ -148,6 +149,7 @@
             this.Controls.Add(this.cmbVideoSource);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txt_InputVideoInfo);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "DeviceSettingsForm";
             this.Text = "Device Settings";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.DeviceSettingsForm_FormClosing);

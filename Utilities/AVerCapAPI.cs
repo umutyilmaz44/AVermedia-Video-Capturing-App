@@ -1073,6 +1073,12 @@ namespace AverMediaLib
         public static extern int AVerSplitRecordFile(IntPtr hRecordObject);
         [DllImport("AVerCapAPI.dll")]
         public static extern int AVerStopRecordFile(IntPtr hRecordObject);
+        [DllImport("AVerCapAPI.dll")]
+        public static extern int AVerCaptureVideoSequenceStart(IntPtr hRecordObject, VIDEO_CAPTURE_INFO videCaptureINfo);
+        [DllImport("AVerCapAPI.dll")]
+        public static extern int AVerCaptureVideoSequenceStop(IntPtr hRecordObject);
+        [DllImport("AVerCapAPI.dll")]
+        public static extern int AVerCaptureSingleImageToBuffer(IntPtr hCaptureObject, ref byte[] lpBmpData, ref int plBufferSize, bool bOverlayMix, uint dwTimeout);
 
         // Overlay
         [DllImport("AVerCapAPI.dll")]
@@ -1122,15 +1128,17 @@ namespace AverMediaLib
             videoResolution.bCustom = 0;
 
             string resolutionName = "VIDEORESOLUTION_" + width + "X" + height;
-            VIDEORESOLUTION resolution = (VIDEORESOLUTION)Enum.Parse(typeof(VIDEORESOLUTION), resolutionName);
-            videoResolution.dwVideoResolution = (uint)resolution;
-            string[] resolutions = resolution.ToString().Replace("VIDEORESOLUTION_", "").Split(new string[] { "x", "X" }, StringSplitOptions.None);
-            if (resolutions.Length == 2)
+            VIDEORESOLUTION resolution = new VIDEORESOLUTION();
+            if (Enum.TryParse<VIDEORESOLUTION>(resolutionName, out resolution))
             {
-                videoResolution.dwWidth = UInt32.Parse(resolutions[0]);
-                videoResolution.dwHeight = UInt32.Parse(resolutions[1]);
+                videoResolution.dwVideoResolution = (uint)resolution;
+                string[] resolutions = resolution.ToString().Replace("VIDEORESOLUTION_", "").Split(new string[] { "x", "X" }, StringSplitOptions.None);
+                if (resolutions.Length == 2)
+                {
+                    videoResolution.dwWidth = UInt32.Parse(resolutions[0]);
+                    videoResolution.dwHeight = UInt32.Parse(resolutions[1]);
+                }
             }
-
             return videoResolution;
         }
     }

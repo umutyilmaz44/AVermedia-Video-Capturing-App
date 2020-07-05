@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.panel1 = new System.Windows.Forms.Panel();
+            this.btnShowImageStats = new System.Windows.Forms.Button();
             this.btnSaveSettings = new System.Windows.Forms.Button();
             this.btnDeviceSettings = new System.Windows.Forms.Button();
             this.btnCapture = new System.Windows.Forms.Button();
@@ -73,8 +74,8 @@
             this.cmbVideoEnhancement = new System.Windows.Forms.ComboBox();
             this.cmbDeInterlance = new System.Windows.Forms.ComboBox();
             this.pnlImage = new System.Windows.Forms.Panel();
-            this.pboxImage = new System.Windows.Forms.PictureBox();
             this.btnCrosshairKeyTrackingLock = new System.Windows.Forms.Button();
+            this.pboxImage = new System.Windows.Forms.PictureBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.tabControlFilter.SuspendLayout();
@@ -96,6 +97,7 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.btnShowImageStats);
             this.panel1.Controls.Add(this.btnSaveSettings);
             this.panel1.Controls.Add(this.btnDeviceSettings);
             this.panel1.Controls.Add(this.btnCapture);
@@ -107,6 +109,18 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(984, 55);
             this.panel1.TabIndex = 1;
+            // 
+            // btnShowImageStats
+            // 
+            this.btnShowImageStats.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnShowImageStats.BackgroundImage = global::AverMediaTestApp.Properties.Resources.image_stats;
+            this.btnShowImageStats.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.btnShowImageStats.Location = new System.Drawing.Point(820, 17);
+            this.btnShowImageStats.Name = "btnShowImageStats";
+            this.btnShowImageStats.Size = new System.Drawing.Size(34, 32);
+            this.btnShowImageStats.TabIndex = 33;
+            this.btnShowImageStats.UseVisualStyleBackColor = true;
+            this.btnShowImageStats.Click += new System.EventHandler(this.btnShowImageStats_Click);
             // 
             // btnSaveSettings
             // 
@@ -587,16 +601,7 @@
             this.pnlImage.Location = new System.Drawing.Point(0, 55);
             this.pnlImage.Name = "pnlImage";
             this.pnlImage.Size = new System.Drawing.Size(784, 627);
-            this.pnlImage.TabIndex = 32;
-            // 
-            // pboxImage
-            // 
-            this.pboxImage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pboxImage.Location = new System.Drawing.Point(0, 0);
-            this.pboxImage.Name = "pboxImage";
-            this.pboxImage.Size = new System.Drawing.Size(784, 627);
-            this.pboxImage.TabIndex = 5;
-            this.pboxImage.TabStop = false;
+            this.pnlImage.TabIndex = 34;
             // 
             // btnCrosshairKeyTrackingLock
             // 
@@ -608,7 +613,15 @@
             this.btnCrosshairKeyTrackingLock.Size = new System.Drawing.Size(34, 32);
             this.btnCrosshairKeyTrackingLock.TabIndex = 32;
             this.btnCrosshairKeyTrackingLock.UseVisualStyleBackColor = true;
-            this.btnCrosshairKeyTrackingLock.Click += new System.EventHandler(this.btnCrosshairKeyTrackingLock_Click);
+            // 
+            // pboxImage
+            // 
+            this.pboxImage.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pboxImage.Location = new System.Drawing.Point(0, 0);
+            this.pboxImage.Name = "pboxImage";
+            this.pboxImage.Size = new System.Drawing.Size(784, 627);
+            this.pboxImage.TabIndex = 5;
+            this.pboxImage.TabStop = false;
             // 
             // MainForm
             // 
@@ -618,6 +631,7 @@
             this.Controls.Add(this.pnlImage);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "Avermedia Capture Card App";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -691,9 +705,10 @@
         private System.Windows.Forms.Button btnRotateCounterclockwise;
         private System.Windows.Forms.Button btnRotateClockwise;
         private System.Windows.Forms.Button btnSaveSettings;
+        private System.Windows.Forms.Button btnShowImageStats;
         private System.Windows.Forms.Panel pnlImage;
-        private System.Windows.Forms.PictureBox pboxImage;
         private System.Windows.Forms.Button btnCrosshairKeyTrackingLock;
+        private System.Windows.Forms.PictureBox pboxImage;
     }
 }
 
