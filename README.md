@@ -14,6 +14,7 @@ The application has the following features:
 * Video Enhancement,
 * Image capture and recording.
 * A screen to list the installed devices and make the necessary adjustments for the selected device. There is also the ability to save defined settings.
+* Live view of video snapshot statistics summary information.
 
 In order to use the application, any avermedia frame garbber hardware that supports AVermedia SDK Pro must be installed on your computer. **C725 PCIe SD Capturing Device** was used for this application.
 
