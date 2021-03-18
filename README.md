@@ -1,5 +1,5 @@
 # AVermedia Video Capturing App For Frame Grabber
-The app is is an example of that Video capturing for AVermedia frame grabber card via **AVermedia SDK Pro**.
+The app is an example of that Video capturing for AVermedia frame grabber card via **AVermedia SDK Pro**.
 
 This project is an exemplary application that performs various image processing operations over video streaming using the avermedia sdk pro library.
 The application has the following features:
